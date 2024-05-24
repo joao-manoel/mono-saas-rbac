@@ -2,6 +2,7 @@ import fastifyCors from '@fastify/cors'
 import fastifyJwt from '@fastify/jwt'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
+import { env } from '@saas/env'
 import { fastify } from 'fastify'
 import {
   jsonSchemaTransform,
@@ -49,7 +50,7 @@ app.register(fastifySwaggerUi, {
   routePrefix: '/docs',
 })
 app.register(fastifyJwt, {
-  secret: 'my-secret',
+  secret: env.JWT_SECRET,
 })
 app.register(fastifyCors)
 
@@ -60,6 +61,6 @@ app.register(requestPasswordRecover)
 app.register(resetPassword)
 app.register(authenticateWithGithub)
 
-app.listen({ port: 3333 }).then(() => {
-  console.log('HTTP server running! http://localhost:3333/')
+app.listen({ port: env.SERVER_PORT }).then(() => {
+  console.log(`HTTP server running! http://localhost:${env.SERVER_PORT}/`)
 })
