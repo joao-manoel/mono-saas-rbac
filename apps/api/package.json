@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "pnpm env:load tsx watch src/http/server.ts",
     "db:migrate": "pnpm env:load prisma migrate dev",
+    "db:seed": "pnpm env:load prisma db seed",
     "db:studio": "pnpm env:load prisma studio",
     "env:load": "dotenv -e ../../.env --"
   },
@@ -33,7 +34,7 @@
     "tsx": "^4.11.0"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "pnpm env:load tsx prisma/seed.ts"
   },
   "prettier": "@saas/prettier",
   "eslintConfig": {
