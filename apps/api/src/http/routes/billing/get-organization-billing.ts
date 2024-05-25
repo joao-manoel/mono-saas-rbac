@@ -79,7 +79,7 @@ export async function getOrganizationBilling(app: FastifyInstance) {
             projects: {
               amount: amountOfProjects,
               unit: 20,
-              price: amountOfProjects * 10,
+              price: amountOfProjects * 20,
             },
             total: amountOfMembers * 10 + amountOfProjects * 20,
           },
