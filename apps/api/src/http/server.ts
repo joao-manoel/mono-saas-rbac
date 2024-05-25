@@ -22,17 +22,24 @@ import { createOrganization } from './routes/orgs/create-organization'
 import { getMembership } from './routes/orgs/get-membership'
 import { getOrganization } from './routes/orgs/get-organization'
 import { getOrganizations } from './routes/orgs/get-organizations'
+import { acceptInvite } from './routes/orgs/invites/accept-invite'
+import { createInvite } from './routes/orgs/invites/create-invite'
+import { getInvite } from './routes/orgs/invites/get-invite'
+import { getInvites } from './routes/orgs/invites/get-invites'
+import { getPendingInvites } from './routes/orgs/invites/get-pending-invites'
+import { rejectInvite } from './routes/orgs/invites/reject-invite'
+import { revokeInvite } from './routes/orgs/invites/revoke-invite'
 import { getMembers } from './routes/orgs/members/get-members'
 import { removeMember } from './routes/orgs/members/remove-members'
 import { updateMember } from './routes/orgs/members/update-member'
+import { createProject } from './routes/orgs/projects/create-project'
+import { deleteProject } from './routes/orgs/projects/delete-project'
+import { getProject } from './routes/orgs/projects/get-project'
+import { getProjects } from './routes/orgs/projects/get-projects'
+import { updateProject } from './routes/orgs/projects/update-project'
 import { shutdownOrganization } from './routes/orgs/shutdown-organization'
 import { transferOrganization } from './routes/orgs/transfer-organization'
 import { updateOrganization } from './routes/orgs/update-organization'
-import { createProject } from './routes/projects/create-project'
-import { deleteProject } from './routes/projects/delete-project'
-import { getProject } from './routes/projects/get-project'
-import { getProjects } from './routes/projects/get-projects'
-import { updateProject } from './routes/projects/update-project'
 
 const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -97,6 +104,15 @@ app.register(updateProject)
 app.register(getMembers)
 app.register(updateMember)
 app.register(removeMember)
+
+// INVITES
+app.register(createInvite)
+app.register(getInvite)
+app.register(getInvites)
+app.register(acceptInvite)
+app.register(rejectInvite)
+app.register(revokeInvite)
+app.register(getPendingInvites)
 
 app.listen({ port: env.SERVER_PORT }).then(() => {
   console.log(`HTTP server running! http://localhost:${env.SERVER_PORT}/`)
