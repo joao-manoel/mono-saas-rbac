@@ -1,25 +1,24 @@
-import { projectSchema } from '@saas/auth'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import z from 'zod'
 
 import { auth } from '@/http/middlewares/auth'
 import { prisma } from '@/lib/prisma'
+import { createSlug } from '@/utils/create-slug'
 import { getUserPermissions } from '@/utils/get-user-permissions'
 
-import { BadRequestError } from '../_errors/bad-request-error'
-import { UnauthorizedError } from '../_errors/unauthorized-error'
+import { UnauthorizedError } from '../../_errors/unauthorized-error'
 
-export async function updateProject(app: FastifyInstance) {
+export async function createProject(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
-    .put(
-      '/organizations/:slug/projects/:projectId',
+    .post(
+      '/organizations/:slug/projects',
       {
         schema: {
           tags: ['projects'],
-          summary: 'Update a project',
+          summary: 'Create a new project',
           security: [{ bearerAuth: [] }],
           body: z.object({
             name: z.string(),
@@ -27,53 +26,43 @@ export async function updateProject(app: FastifyInstance) {
           }),
           params: z.object({
             slug: z.string(),
-            projectId: z.string().uuid(),
           }),
           response: {
-            204: z.null(),
+            201: z.object({
+              projectId: z.string().uuid(),
+            }),
           },
         },
       },
       async (request, reply) => {
-        const { slug, projectId } = request.params
+        const { slug } = request.params
         const userId = await request.getCurrentUserId()
         const { organization, membership } =
           await request.getUserMembership(slug)
 
-        const project = await prisma.project.findUnique({
-          where: {
-            id: projectId,
-            organizationId: organization.id,
-          },
-        })
-
-        if (!project) {
-          throw new BadRequestError(`Project not found.`)
-        }
-
         const { cannot } = getUserPermissions(userId, membership.role)
-        const authProject = projectSchema.parse(project)
 
-        if (cannot('update', authProject)) {
+        if (cannot('create', 'Project')) {
           throw new UnauthorizedError(
-            `You'are not allowed to update this project`,
+            `You'are not allowed to create a new project`,
           )
         }
 
         const { name, description } = request.body
 
-        await prisma.project.update({
-          where: {
-            id: projectId,
-            organizationId: organization.id,
-          },
+        const project = await prisma.project.create({
           data: {
             name,
+            slug: createSlug(name),
             description,
+            organizationId: organization.id,
+            ownerId: userId,
           },
         })
 
-        return reply.status(204).send()
+        return reply.status(201).send({
+          projectId: project.id,
+        })
       },
     )
 }
